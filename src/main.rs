@@ -1,3 +1,5 @@
+use std::thread;
+use std::time::Duration;
 use esp_idf_svc::{
     hal::{
         peripherals::Peripherals
@@ -18,8 +20,9 @@ use esp_idf_svc::hal::spi::{config, SpiDeviceDriver, SpiDriverConfig};
 use esp_idf_svc::hal::units::FromValueType;
 // Provides the Display builder
 use mipidsi::{models::ST7789, Builder};
+use mipidsi::options::{ColorInversion, ColorOrder, Orientation};
 
-fn main() {
+fn main() -> anyhow::Result<()>  {
     // It is necessary to call this function once. Otherwise some patches to the runtime
     // implemented by esp-idf-sys might not link properly. See https://github.com/esp-rs/esp-idf-template/issues/71
     esp_idf_svc::sys::link_patches();
@@ -63,8 +66,11 @@ fn main() {
 
     // Define the display from the display interface and initialize it
     let mut display = Builder::new(ST7789, di)
-        .display_size(135, 240)
         .reset_pin(rst)
+        .color_order(ColorOrder::Rgb)
+        .invert_colors(ColorInversion::Inverted)
+        .display_offset(52, 40)
+        .display_size(135, 240)
         .init(&mut delay)
         .unwrap();
 
@@ -76,38 +82,38 @@ fn main() {
     draw_smiley(&mut display).unwrap();
 
     loop {
-
+        thread::sleep(Duration::from_millis(1000));
     }
 }
 
 fn draw_smiley<T: DrawTarget<Color = Rgb565>>(display: &mut T) -> Result<(), T::Error> {
     // Draw the left eye as a circle located at (50, 100), with a diameter of 40, filled with white
-    Circle::new(Point::new(50, 100), 40)
+    Circle::new(Point::new(25, 40), 15)
         .into_styled(PrimitiveStyle::with_fill(Rgb565::WHITE))
         .draw(display)?;
 
     // Draw the right eye as a circle located at (50, 200), with a diameter of 40, filled with white
-    Circle::new(Point::new(50, 200), 40)
+    Circle::new(Point::new(25, 60), 15)
         .into_styled(PrimitiveStyle::with_fill(Rgb565::WHITE))
         .draw(display)?;
 
     // Draw an upside down red triangle to represent a smiling mouth
     Triangle::new(
-        Point::new(130, 140),
-        Point::new(130, 200),
-        Point::new(160, 170),
+        Point::new(50, 45),
+        Point::new(50, 55),
+        Point::new(60, 50),
     )
         .into_styled(PrimitiveStyle::with_fill(Rgb565::RED))
         .draw(display)?;
 
-    // Cover the top part of the mouth with a black triangle so it looks closed instead of open
-    Triangle::new(
-        Point::new(130, 150),
-        Point::new(130, 190),
-        Point::new(150, 170),
-    )
-        .into_styled(PrimitiveStyle::with_fill(Rgb565::BLACK))
-        .draw(display)?;
+    // // Cover the top part of the mouth with a black triangle so it looks closed instead of open
+    // Triangle::new(
+    //     Point::new(130, 150),
+    //     Point::new(130, 190),
+    //     Point::new(150, 170),
+    // )
+    //     .into_styled(PrimitiveStyle::with_fill(Rgb565::BLACK))
+    //     .draw(display)?;
 
     Ok(())
 }
