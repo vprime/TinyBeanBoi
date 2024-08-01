@@ -3,6 +3,9 @@
 Tiny Games Challenge Entry
 https://hackaday.io/contest/196871-tiny-games-challenge
 
+GDD: https://docs.google.com/document/d/1beK_Rb5zcQEk4hUwibhF79FwWzQywaa5AEWXBtblu60/edit?usp=sharing
+
+
 Tiny qualifications: 
 - Tiny pocket-size device (Esp32)
 Honerable Mentions: 
@@ -12,18 +15,21 @@ Honerable Mentions:
 
 # Development
 ## Sources
-espup: 
-https://docs.esp-rs.org/book/installation/riscv-and-xtensa.html
-
 RS Display code options:
-https://github.com/ri-char/rp2040-st7789
-https://github.com/x931890193/st7789v
-https://github.com/Gussy/st7789v
+https://github.com/x931890193/st7789v (With examples)
+https://github.com/almindor/st7789 (Original)
+https://github.com/almindor/mipidsi (Newest, most mature, more generic)
+
 
 OG Source:
 https://github.com/Xinyuan-LilyGO/TTGO-T-Display/tree/master
 
+Other Resources
+espup (Building for ESP32):
+https://docs.esp-rs.org/book/installation/riscv-and-xtensa.html
 
+Embedded rust book:
+https://docs.rust-embedded.org/book/interoperability/index.html
 
 ## Target Device
 Cheap ESP32 devices with displays and at least 2 buttons.
@@ -35,11 +41,16 @@ https://github.com/Xinyuan-LilyGO/TTGO-T-Display
 Batteries
 https://www.amazon.com/MakerFocus-Rechargable-Protection-Insulated-Development/dp/B07CXNQ3ZR/
 
+CPU Datasheet
+https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf
+
+
 bottom buttons:
 GPIO0 GPIO35
 
 Audio:
-Probably 
+Pin 25 DAC1
+Pin 26 DAC2
 
 ### Hardware Specifications:
 - Chipset: ESPRESSIF-ESP32 240MHz Xtensa single-/dual-core 32-bit LX6 microprocessor
