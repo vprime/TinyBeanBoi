@@ -13,7 +13,47 @@ Honerable Mentions:
 - "Pocket Arcade" Just like a Tamagachi, it should be able to hook to a belt loop, and be carried around.
 
 
+
 # Development
+## Setup
+
+This project is split into 3 main source components
+- pocket: provides the binary for programming to the ESP32 pocket device
+- desktop: provides a desktop version of the game for Windows and Linux
+- game: provides the bulk of the gameplay source
+
+### Building to Desktop
+The Desktop App will provide a simple simulation of the pocket device.
+Requirements:
+- Rust & Cargo: https://www.rust-lang.org/tools/install
+
+Follow the above guide to install rust.
+After that, enter the desktop directory and run the command 
+```cargo run```
+And the game will play
+
+
+### Building to the Pocket device
+This unique piece of hardware requires some extra components outside of the standard rust toolchain.
+Requirements:
+- Rust & Cargo
+- LILYGO T-Display V1.1
+- USB-C cable
+- espup
+- ESP-IDF
+- ldproxy
+
+To set up espup, ESP-IDF, and ldproxy please follow along with the following pages in the "Rust on ESP Book":
+When asked, select at least "ESP32", and "Xtensa". You could also install for more devices, if you don't mind the disk usage.
+- https://docs.esp-rs.org/book/installation/riscv-and-xtensa.html
+- https://docs.esp-rs.org/book/installation/std-requirements.html
+- Alternatively you can install in Docker: https://docs.esp-rs.org/book/installation/using-containers.html
+
+Once these steps are completed, enter the "pocket" directory and use the command
+```cargo run```
+to build and install the game to your pocket device. 
+
+
 ## Sources
 RS Display code options:
 https://github.com/x931890193/st7789v (With examples)

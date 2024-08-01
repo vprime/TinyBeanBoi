@@ -1,13 +1,13 @@
 [package]
-name = "tiny-bean-boi"
+name = "tiny-bean-boi-pocket"
 version = "0.1.0"
-authors = ["Vi Prime <1724913+vprime@users.noreply.github.com>"]
+authors = ["Vi Prime <vi@vprime.dev>"]
 edition = "2021"
 resolver = "2"
 rust-version = "1.77"
 
 [[bin]]
-name = "tiny-bean-boi"
+name = "tiny-bean-boi-pocket"
 harness = false # do not use the built in cargo test harness -> resolve rust-analyzer errors
 
 [profile.release]
