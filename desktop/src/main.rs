@@ -103,7 +103,6 @@ impl eframe::App for AppWrapper {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             self.display.ui(ui);
-            ctx.texture_ui(ui);
 
             ui.horizontal(|ui| {
                 let left_button = ui.add(egui::Button::new("Left").sense(Sense::drag()));
@@ -120,6 +119,8 @@ impl eframe::App for AppWrapper {
                 }
                 self.input_state = new_state;
             });
+            ui.heading("Debug");
+            ctx.texture_ui(ui);
         });
         let output_state = self.game.update(&mut self.display, self.input_state);
 
