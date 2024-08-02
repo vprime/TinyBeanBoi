@@ -1,13 +1,19 @@
+mod input;
+use std::time::{Instant, Duration};
 use embedded_graphics::{
     pixelcolor::Rgb565,
     prelude::*,
 };
 use embedded_graphics::image::Image;
 use tinybmp::Bmp;
+use crate::BlobcatTest::{base, blank, happy, left, right};
+use crate::input::Input;
 
-#[derive(Default)]
 pub struct Game {
-    prev_input: InputState,
+    time: Instant,
+    frame: u64,
+    pub input: Input,
+    blobcat: BlobcatTest,
 }
 
 #[derive(Copy, Clone, Default)]
@@ -20,36 +26,76 @@ pub struct OutputState {
 
 }
 
-impl Game {
-    pub fn new() -> Self {
+enum BlobcatTest {
+    blank,
+    base,
+    left,
+    right,
+    happy,
+}
+
+impl Default for Game {
+    fn default() -> Self {
         Self {
-            prev_input: InputState { left: false, right: false, },
+            time: Instant::now(),
+            frame: 0,
+            input: Input::default(),
+            blobcat: BlobcatTest::blank,
         }
     }
+}
 
+impl Game {
     pub fn update<T: DrawTarget<Color = Rgb565>>(&mut self, display: &mut T, input_state: InputState) -> OutputState {
+        // Update the game timer
+        self.frame += 1;
+        let now = self.time.elapsed().as_millis();
 
-        if input_state.left && !input_state.right {
-            Self::draw_graphic(display, include_bytes!("../../assets/blobcat2.bmp"));
-        } else if input_state.right && !input_state.left {
-            Self::draw_graphic(display, include_bytes!("../../assets/blobcat3.bmp"));
-        } else if input_state.right && input_state.left {
-            Self::draw_graphic(display, include_bytes!("../../assets/blobcat4.bmp"));
-        } else {
-            Self::draw_graphic(display, include_bytes!("../../assets/blobcat1.bmp"));
+        // Update input from device
+        self.input.update(input_state, now, self.frame);
+
+
+        // Graphic drawing demo code
+        if self.input.left.click() || self.input.right.click() {
+            self.blobcat = base;
         }
-        
-        self.prev_input = input_state;
+        if self.input.left.double_click() {
+            self.blobcat = left;
+        }
+        if self.input.right.double_click() {
+            self.blobcat = right;
+        }
+        if self.input.left.long_press() && self.input.right.long_press() {
+            self.blobcat = blank;
+        } else if self.input.left.long_press() || self.input.right.long_press() {
+            self.blobcat = happy;
+        }
+
+        // Draw
+        let result = match self.blobcat {
+            blank => {
+                display.clear(Rgb565::BLACK)
+            }
+            base => {Self::draw_graphic(display, include_bytes!("../../assets/blobcat1.bmp"))}
+            left => {Self::draw_graphic(display, include_bytes!("../../assets/blobcat2.bmp"))}
+            right => {Self::draw_graphic(display, include_bytes!("../../assets/blobcat3.bmp"))}
+            happy => {Self::draw_graphic(display, include_bytes!("../../assets/blobcat4.bmp"))}
+        };
+
+        // Unwrap draw result
+        match result {
+            Ok(_) => {}
+            Err(_) => {}
+        }
+
+        // Return the output state
         OutputState {
 
         }
     }
     
-    fn draw_graphic<T: DrawTarget<Color = Rgb565>>(display: &mut T, bmp_data: &[u8]) {
+    fn draw_graphic<T: DrawTarget<Color = Rgb565>>(display: &mut T, bmp_data: &[u8]) -> Result<(), T::Error> {
         let bmp = Bmp::from_slice(bmp_data).unwrap();
-        match Image::new(&bmp, Point::new(0, 0)).draw(display) {
-            Ok(x) => x,
-            Err(_) => todo!(),
-        };
+        Image::new(&bmp, Point::new(0, 0)).draw(display)
     }
 }

@@ -94,7 +94,7 @@ impl AppWrapper {
             display: GameDisplay {
                 image: [0; (DISPLAY_WIDTH * DISPLAY_HEIGHT * 3) as usize],
             },
-            game: Game::new(),
+            game: Game::default(),
             input_state: InputState::default(),
         }
     }
