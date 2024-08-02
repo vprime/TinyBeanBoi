@@ -3,43 +3,136 @@
 Tiny Games Challenge Entry
 https://hackaday.io/contest/196871-tiny-games-challenge
 
-Tiny qualifications: 
+Game Design Document 
+https://docs.google.com/document/d/1beK_Rb5zcQEk4hUwibhF79FwWzQywaa5AEWXBtblu60/edit?usp=sharing
+
+
+### Tiny qualifications: 
 - Tiny pocket-size device (Esp32)
-Honerable Mentions: 
+
+#### Honerable Mentions: 
 - "The Classics" We are recreating a Tamagachi with our own twist for modern hardware.
 - "Pocket Arcade" Just like a Tamagachi, it should be able to hook to a belt loop, and be carried around.
 
+## Team
+- Vi Prime      @vprime
+  - Programming
+- Isaac Pahona  @CheftoTheLeft
+  - Art
+- Tyler Shauger @git-stop-please
+- Will Kostecki @WillKostecki
+- Eli Young
+  - Art
+
 
 # Development
+## Setup
+
+This project is split into 3 main source components
+- game: provides the bulk of the gameplay source, most of the code will go into here.
+- pocket: provides the binary for programming to the ESP32 pocket device
+- desktop: provides a desktop version of the game for Windows and Linux
+
+The other folders
+- assets: Contains files that will be included within the output binary
+- docs: Contains Documention outside of common root assets.
+- artsrc: Contains source materials for game art assets.
+
+### Building to Desktop
+The Desktop App will provide a simple simulation of the pocket device.
+Requirements:
+- Rust & Cargo: https://www.rust-lang.org/tools/install
+
+Follow the above guide to install rust.
+After that, enter the desktop directory and run the command 
+```cargo run```
+And the game will play
+
+
+### Building to the Pocket device
+This unique piece of hardware requires some extra components outside of the standard rust toolchain.
+Requirements:
+- Rust & Cargo
+- LILYGO T-Display V1.1
+- USB-C cable
+- espup
+- ESP-IDF
+- ldproxy
+
+To set up espup, ESP-IDF, and ldproxy please follow along with the following pages in the "Rust on ESP Book":
+When asked, select at least "ESP32", and "Xtensa". You could also install for more devices, if you don't mind the disk usage.
+- https://docs.esp-rs.org/book/installation/riscv-and-xtensa.html
+- https://docs.esp-rs.org/book/installation/std-requirements.html
+- Alternatively you can install in Docker: https://docs.esp-rs.org/book/installation/using-containers.html
+
+Once these steps are completed, enter the "pocket" directory and use the command
+```cargo run```
+to build and install the game to your pocket device. 
+
+
 ## Sources
-espup: 
-https://docs.esp-rs.org/book/installation/riscv-and-xtensa.html
 
-RS Display code options:
-https://github.com/ri-char/rp2040-st7789
-https://github.com/x931890193/st7789v
-https://github.com/Gussy/st7789v
+### Project
+Graphics Library:
+https://github.com/embedded-graphics/embedded-graphics
 
-OG Source:
+Bitmap Parser:
+https://crates.io/crates/tinybmp
+
+
+### Pocket Device Specific
+Display Software
+https://github.com/almindor/mipidsi (Newest, most mature, more generic)
+
+LILYGO T-Display Github: (Contains 3D files, Schematics, and Display Drivers in C)
 https://github.com/Xinyuan-LilyGO/TTGO-T-Display/tree/master
 
+### Desktop Specific
+UI Library:
+https://github.com/emilk/egui
 
+### Manuals
 
-## Target Device
+espup (Building for ESP32):
+https://docs.esp-rs.org/book/installation/riscv-and-xtensa.html
+
+Embedded rust book:
+https://docs.rust-embedded.org/book/interoperability/index.html
+
+Embedded Rust on Espressif:
+https://docs.esp-rs.org/std-training/01_intro.html
+
+## Target Pocket Device
 Cheap ESP32 devices with displays and at least 2 buttons.
-https://www.lilygo.cc/products/lilygo%C2%AE-ttgo-t-display-1-14-inch-lcd-esp32-control-board
-https://www.amazon.com/HiLetgo-Display-Bluetooth-Internet-Development/dp/B07X1W16QS/
-Device Source
-https://github.com/Xinyuan-LilyGO/TTGO-T-Display
+- https://www.lilygo.cc/products/lilygo%C2%AE-ttgo-t-display-1-14-inch-lcd-esp32-control-board
+- https://www.amazon.com/HiLetgo-Display-Bluetooth-Internet-Development/dp/B07X1W16QS/
 
 Batteries
-https://www.amazon.com/MakerFocus-Rechargable-Protection-Insulated-Development/dp/B07CXNQ3ZR/
+- https://www.amazon.com/MakerFocus-Rechargable-Protection-Insulated-Development/dp/B07CXNQ3ZR/
 
-bottom buttons:
-GPIO0 GPIO35
+Speakers
+- DC5V Mini Piezo Speaker https://www.amazon.com/dp/B07VK1GJ9X
+
+CPU Datasheet
+- https://www.espressif.com/sites/default/files/documentation/esp32_datasheet_en.pdf
+
+### Pins
+![Diagram of the development board](docs/T-display-pin-diagram_1024x1024.webp)
+Buttons:
+- Left: GPIO0 
+- Right: GPIO35
 
 Audio:
-Probably 
+- Pin 25: GPIO25 DAC1
+- Pin 26: GPIO25 DAC2
+
+Video SPI:
+- MOSI: GPIO19
+- SCLK: GPIO18
+- CS: GPIO5
+- DC: GPIO16
+- RST: GPIO23
+- Backlight: GPIO4
 
 ### Hardware Specifications:
 - Chipset: ESPRESSIF-ESP32 240MHz Xtensa single-/dual-core 32-bit LX6 microprocessor

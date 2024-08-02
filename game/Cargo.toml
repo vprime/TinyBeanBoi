@@ -1,0 +1,9 @@
+[package]
+name = "tiny-bean-boi-lib"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+chrono = "0.4.38"
+embedded-graphics = "0.8.1"
+tinybmp = "0.6.0"
