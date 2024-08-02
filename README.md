@@ -7,13 +7,22 @@ Game Design Document
 https://docs.google.com/document/d/1beK_Rb5zcQEk4hUwibhF79FwWzQywaa5AEWXBtblu60/edit?usp=sharing
 
 
-Tiny qualifications: 
+### Tiny qualifications: 
 - Tiny pocket-size device (Esp32)
 
-Honerable Mentions: 
+#### Honerable Mentions: 
 - "The Classics" We are recreating a Tamagachi with our own twist for modern hardware.
 - "Pocket Arcade" Just like a Tamagachi, it should be able to hook to a belt loop, and be carried around.
 
+## Team
+- Vi Prime      @vprime
+  - Programming
+- Isaac Pahona  @CheftoTheLeft
+  - Art
+- Tyler Shauger @git-stop-please
+- Will Kostecki @WillKostecki
+- Eli Young
+  - Art
 
 
 # Development
