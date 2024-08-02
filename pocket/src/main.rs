@@ -1,27 +1,27 @@
 use std::thread;
-use std::time::{Duration, SystemTime};
+use std::time::{Duration};
+
 use esp_idf_svc::{
     hal::{
-        peripherals::Peripherals
+        peripherals::Peripherals,
+        delay::Ets,
+        gpio::PinDriver,
+        spi::{config, SpiDeviceDriver, SpiDriverConfig},
+        units::FromValueType,
     }
 };
 use display_interface_spi::SPIInterface;
 use embedded_graphics::{
     pixelcolor::Rgb565,
-    prelude::*,
-    primitives::{Circle, Primitive, PrimitiveStyle, Triangle},
+    prelude::*
+};
+use embedded_hal::spi::MODE_3;
+use mipidsi::{
+    models::ST7789, 
+    Builder,
+    options::{ColorInversion, ColorOrder},
 };
 
-// Provides the parallel port and display interface builders
-use embedded_hal::spi::MODE_3;
-use esp_idf_svc::hal::delay::Ets;
-use esp_idf_svc::hal::gpio::PinDriver;
-use esp_idf_svc::hal::spi::{config, SpiDeviceDriver, SpiDriverConfig};
-use esp_idf_svc::hal::units::FromValueType;
-
-// Provides the Display builder
-use mipidsi::{models::ST7789, Builder};
-use mipidsi::options::{ColorInversion, ColorOrder, Orientation};
 use tiny_bean_boi_lib::{Game, InputState};
 
 fn main() -> anyhow::Result<()>  {
@@ -31,8 +31,6 @@ fn main() -> anyhow::Result<()>  {
 
     // Bind the log crate to the ESP Logging facilities
     esp_idf_svc::log::EspLogger::initialize_default();
-
-    log::info!("Hello, world!");
 
     let peripherals = Peripherals::take().unwrap();
     let spi = peripherals.spi2;
@@ -46,8 +44,8 @@ fn main() -> anyhow::Result<()>  {
     let cs = peripherals.pins.gpio5;
     let miso = peripherals.pins.gpio20;
 
-    let mut left_button = PinDriver::input(peripherals.pins.gpio0).unwrap();
-    let mut right_button = PinDriver::input(peripherals.pins.gpio35).unwrap();
+    let left_button = PinDriver::input(peripherals.pins.gpio0).unwrap();
+    let right_button = PinDriver::input(peripherals.pins.gpio35).unwrap();
 
     let mut delay = Ets;
 
@@ -79,7 +77,10 @@ fn main() -> anyhow::Result<()>  {
         .init(&mut delay)
         .unwrap();
 
+    // We will eventually want to turn off the backlight and screen to go into low power mode
+    // That will be an extended scope option tho
     backlight.set_high().unwrap();
+    
     // Make the display all black
     display.clear(Rgb565::BLACK).unwrap();
 

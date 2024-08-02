@@ -1,15 +1,16 @@
 
 use std::convert::Infallible;
-use eframe::egui;
 
+use eframe::egui;
 use egui::{ColorImage, Key, Sense, TextureHandle};
 
 use embedded_graphics::{
-    pixelcolor::Rgb565,
     prelude::*,
+    pixelcolor::Rgb565,
+    pixelcolor::Rgb888,
+    primitives::Rectangle,
 };
-use embedded_graphics::pixelcolor::Rgb888;
-use embedded_graphics::primitives::Rectangle;
+
 use tiny_bean_boi_lib::{Game, InputState};
 
 

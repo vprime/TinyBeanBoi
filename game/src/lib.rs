@@ -1,4 +1,3 @@
-use std::path::Display;
 use embedded_graphics::{
     pixelcolor::Rgb565,
     prelude::*,
@@ -6,24 +5,16 @@ use embedded_graphics::{
 use embedded_graphics::image::Image;
 use tinybmp::Bmp;
 
+#[derive(Default)]
 pub struct Game {
     prev_input: InputState,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub struct InputState {
     pub left: bool,
     pub right: bool,
 }
-impl Default for InputState {
-    fn default() -> Self {
-        Self {
-            left: false,
-            right: false,
-        }
-    }
-}
-
 
 pub struct OutputState {
 
