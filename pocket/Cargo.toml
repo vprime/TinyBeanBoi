@@ -39,6 +39,8 @@ display-interface-spi = "0.5.0"
 fugit = "0.3.7"
 anyhow = "1.0.86"
 
+tiny-bean-boi-lib = {path = "../game"}
+
 
 [build-dependencies]
 embuild = "0.32.0"

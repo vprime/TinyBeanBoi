@@ -21,6 +21,7 @@ use esp_idf_svc::hal::units::FromValueType;
 // Provides the Display builder
 use mipidsi::{models::ST7789, Builder};
 use mipidsi::options::{ColorInversion, ColorOrder, Orientation};
+use tiny_bean_boi_lib::{Game, InputState};
 
 fn main() -> anyhow::Result<()>  {
     // It is necessary to call this function once. Otherwise some patches to the runtime
@@ -43,6 +44,9 @@ fn main() -> anyhow::Result<()>  {
     let mosi = peripherals.pins.gpio19;
     let cs = peripherals.pins.gpio5;
     let miso = peripherals.pins.gpio20;
+
+    let mut left_button = PinDriver::input(peripherals.pins.gpio0).unwrap();
+    let mut right_button = PinDriver::input(peripherals.pins.gpio35).unwrap();
 
     let mut delay = Ets;
 
@@ -81,8 +85,23 @@ fn main() -> anyhow::Result<()>  {
     // Draw a smiley face with white eyes and a red mouth
     draw_smiley(&mut display).unwrap();
 
+    let mut game = Game::default();
+
+
     loop {
-        thread::sleep(Duration::from_millis(1000));
+        // Use thread::sleep to prevent Watchdog from triggering
+        thread::sleep(Duration::from_millis(10));
+
+        // Obtain input from device
+        // The face buttons go low when pressed.
+        let current_input_status = InputState{
+            left: left_button.is_low(),
+            right: right_button.is_low(),
+        };
+
+        // Update game
+        let output_state = game.update(current_input_status);
+
     }
 }
 
