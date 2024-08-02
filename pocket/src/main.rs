@@ -1,5 +1,5 @@
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, SystemTime};
 use esp_idf_svc::{
     hal::{
         peripherals::Peripherals
@@ -18,6 +18,7 @@ use esp_idf_svc::hal::delay::Ets;
 use esp_idf_svc::hal::gpio::PinDriver;
 use esp_idf_svc::hal::spi::{config, SpiDeviceDriver, SpiDriverConfig};
 use esp_idf_svc::hal::units::FromValueType;
+
 // Provides the Display builder
 use mipidsi::{models::ST7789, Builder};
 use mipidsi::options::{ColorInversion, ColorOrder, Orientation};
@@ -82,11 +83,7 @@ fn main() -> anyhow::Result<()>  {
     // Make the display all black
     display.clear(Rgb565::BLACK).unwrap();
 
-    // Draw a smiley face with white eyes and a red mouth
-    draw_smiley(&mut display).unwrap();
-
-    let mut game = Game::default();
-
+    let mut game = Game::new();
 
     loop {
         // Use thread::sleep to prevent Watchdog from triggering
@@ -100,39 +97,7 @@ fn main() -> anyhow::Result<()>  {
         };
 
         // Update game
-        let output_state = game.update(current_input_status);
+        let output_state = game.update(&mut display, current_input_status);
 
     }
-}
-
-fn draw_smiley<T: DrawTarget<Color = Rgb565>>(display: &mut T) -> Result<(), T::Error> {
-    // Draw the left eye as a circle located at (50, 100), with a diameter of 40, filled with white
-    Circle::new(Point::new(25, 40), 15)
-        .into_styled(PrimitiveStyle::with_fill(Rgb565::WHITE))
-        .draw(display)?;
-
-    // Draw the right eye as a circle located at (50, 200), with a diameter of 40, filled with white
-    Circle::new(Point::new(25, 60), 15)
-        .into_styled(PrimitiveStyle::with_fill(Rgb565::WHITE))
-        .draw(display)?;
-
-    // Draw an upside down red triangle to represent a smiling mouth
-    Triangle::new(
-        Point::new(50, 45),
-        Point::new(50, 55),
-        Point::new(60, 50),
-    )
-        .into_styled(PrimitiveStyle::with_fill(Rgb565::RED))
-        .draw(display)?;
-
-    // // Cover the top part of the mouth with a black triangle so it looks closed instead of open
-    // Triangle::new(
-    //     Point::new(130, 150),
-    //     Point::new(130, 190),
-    //     Point::new(150, 170),
-    // )
-    //     .into_styled(PrimitiveStyle::with_fill(Rgb565::BLACK))
-    //     .draw(display)?;
-
-    Ok(())
 }
