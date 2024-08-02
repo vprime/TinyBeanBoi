@@ -20,9 +20,14 @@ Honerable Mentions:
 ## Setup
 
 This project is split into 3 main source components
+- game: provides the bulk of the gameplay source, most of the code will go into here.
 - pocket: provides the binary for programming to the ESP32 pocket device
 - desktop: provides a desktop version of the game for Windows and Linux
-- game: provides the bulk of the gameplay source
+
+The other folders
+- assets: Contains files that will be included within the output binary
+- docs: Contains Documention outside of common root assets.
+- artsrc: Contains source materials for game art assets.
 
 ### Building to Desktop
 The Desktop App will provide a simple simulation of the pocket device.
