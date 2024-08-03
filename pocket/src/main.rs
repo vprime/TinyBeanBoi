@@ -98,7 +98,7 @@ fn main() -> anyhow::Result<()>  {
         };
 
         // Update game
-        let output_state = game.update(&mut display, current_input_status);
+        game.update(&mut display, current_input_status);
 
     }
 }

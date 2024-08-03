@@ -1,6 +1,6 @@
 
 use std::convert::Infallible;
-
+use std::time::Duration;
 use eframe::egui;
 use egui::{ColorImage, Key, Sense, TextureHandle};
 
@@ -123,7 +123,7 @@ impl eframe::App for AppWrapper {
             ui.heading("Debug");
             ctx.texture_ui(ui);
         });
-        let output_state = self.game.update(&mut self.display, self.input_state);
-
+        self.game.update(&mut self.display, self.input_state);
+        ctx.request_repaint_after(Duration::from_millis(10));
     }
 }
