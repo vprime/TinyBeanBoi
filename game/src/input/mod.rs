@@ -67,7 +67,7 @@ impl InputControl {
         }
 
         // If the button has been released and the interaction got stale
-        if !new_state && interaction_duration - self.release_start > MULTI_TAP_DURATION {
+        if !new_state && (interaction_duration - self.release_start > MULTI_TAP_DURATION || self.clicks == 2 || interaction_duration > LONG_PRESS)  {
             // Clear interaction watch, and mark the release frame
             self.interacting = false;
             self.interaction_release_frame = frame;
