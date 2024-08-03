@@ -84,7 +84,7 @@ fn main() -> anyhow::Result<()>  {
     // Make the display all black
     display.clear(Rgb565::BLACK).unwrap();
 
-    let mut game = Game::new();
+    let mut game = Game::default();
 
     loop {
         // Use thread::sleep to prevent Watchdog from triggering
@@ -98,7 +98,7 @@ fn main() -> anyhow::Result<()>  {
         };
 
         // Update game
-        let output_state = game.update(&mut display, current_input_status);
+        game.update(&mut display, current_input_status);
 
     }
 }

@@ -45,7 +45,9 @@ Requirements:
 
 Follow the above guide to install rust.
 After that, enter the desktop directory and run the command 
+
 ```cargo run```
+
 And the game will play
 
 
@@ -66,7 +68,9 @@ When asked, select at least "ESP32", and "Xtensa". You could also install for mo
 - Alternatively you can install in Docker: https://docs.esp-rs.org/book/installation/using-containers.html
 
 Once these steps are completed, enter the "pocket" directory and use the command
+
 ```cargo run```
+
 to build and install the game to your pocket device. 
 
 
