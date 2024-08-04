@@ -1,4 +1,5 @@
 mod input;
+mod ui;
 
 use std::collections::HashMap;
 use std::io::Read;
