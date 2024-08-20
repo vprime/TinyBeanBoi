@@ -21,6 +21,10 @@ pub struct Menu {
     pub cursor_index: usize,
     pub visible_elements: u8,
     pub redraw: bool,
+    pub has_focus: bool,
+
+    /// Events
+    pub on_close: Option<fn()>,
 }
 
 impl Default for Menu {
@@ -32,6 +36,8 @@ impl Default for Menu {
             cursor_index: 0,
             visible_elements: 3,
             redraw: true,
+            has_focus: true,
+            on_close: None,
         }
     }
 }
@@ -44,12 +50,19 @@ impl Menu {
         self.handle_input(input);
 
         // Draw the menu
-        if (self.redraw){
+        if self.redraw {
             self.draw(display);
         }
+
+        // Handle Submenu
+        self.handle_submenu(display, input);
     }
 
     fn handle_input(&mut self, input: &Input) {
+        // Check for focus
+        if !self.has_focus {
+            return;
+        }
         // If a button is tapped, we go the direction
         if input.right.click() {
             self.next_item();
@@ -58,6 +71,24 @@ impl Menu {
         } else if input.right.long_press() {
             // On a long right press, we select
             self.select_item();
+        } else if input.left.long_press() {
+            // On a long left press, we close the menu
+            self.close_menu();
+        }
+    }
+
+    fn handle_submenu<T: DrawTarget<Color = Rgb565>>(&mut self, display: &mut T, input: &Input) {
+        if let Some(active_element) = self.elements.get_mut(self.cursor_index) {
+            if let Some(submenu) = active_element.submenu.as_mut(){
+                submenu.update(display, input);
+                let active_submenu = active_element.takes_focus && submenu.has_focus;
+                if active_submenu && self.has_focus {
+                    self.has_focus = false;
+                } else if !active_submenu && !self.has_focus {
+                    self.has_focus = true;
+                    self.redraw = true;
+                }
+            }
         }
     }
 
@@ -84,8 +115,8 @@ impl Menu {
         // Dynamic scrolling list way
 
         // Need to adjust the position of the drawn elements, to align with a cursor in the middle.
-        let available_area = self.style.size - self.style.padding;
-        let center = self.style.point + self.style.padding + (available_area/2);
+        //let available_area = self.style.size - self.style.padding;
+        //let center = self.style.point + self.style.padding + (available_area/2);
         let edge_count = self.visible_elements / 2;
 
         for i in 0..self.visible_elements {
@@ -159,10 +190,18 @@ impl Menu {
     }
 
     /// Select the current item under the cursor
-    fn select_item(&self) {
-        if let Some(item) = self.elements.get(self.cursor_index) {
+    fn select_item(&mut self) {
+        if let Some(item) = self.elements.get_mut(self.cursor_index) {
             item.select();
         }
+    }
+
+    /// Handle closing the menu
+    fn close_menu(&mut self) {
+        if let Some(exit) = self.on_close {
+            exit();
+        }
+        self.has_focus = false;
     }
 }
 
@@ -173,7 +212,25 @@ pub struct MenuElement {
 
     /// Triggered event
     pub trigger: Option<fn()>,
+    pub on_close: Option<fn()>,
+
+    /// Submenu content
+    pub takes_focus: bool,
+    pub submenu: Option<Menu>,
 }
+
+impl Default for MenuElement {
+    fn default() -> Self {
+        Self {
+            style: Default::default(),
+            trigger: None,
+            on_close: None,
+            takes_focus: false,
+            submenu: None,
+        }
+    }
+}
+
 
 impl MenuElement {
     /// Draw this item
@@ -189,9 +246,13 @@ impl MenuElement {
     }
 
     /// Select this item
-    pub fn select(&self) {
+    pub fn select(&mut self) {
         if let Some(trigger) = self.trigger {
             trigger();
+        }
+        if let Some(submenu) = self.submenu.as_mut() {
+            submenu.redraw = true;
+            submenu.has_focus = true;
         }
     }
 }
