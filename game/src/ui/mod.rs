@@ -30,6 +30,7 @@ impl GameUi {
                     element_size: Size::new(32, 32),
                     direction: MenuDirection::Horizontal,
                 },
+                cursor_style:  PrimitiveStyleBuilder::new().stroke_color(Rgb565::YELLOW).stroke_width(3).build(),
                 elements: [
                     MenuElement {
                         style: MenuStyle {

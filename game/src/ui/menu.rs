@@ -12,6 +12,7 @@ use crate::input::Input;
 pub struct Menu {
     /// Style
     pub style: MenuStyle,
+    pub cursor_style: PrimitiveStyle<Rgb565>,
 
     /// Elements
     pub elements: Vec<MenuElement>,
@@ -26,6 +27,7 @@ impl Default for Menu {
     fn default() -> Self {
         Self {
             style: MenuStyle::default(),
+            cursor_style: Default::default(),
             elements: Vec::new(),
             cursor_index: 0,
             visible_elements: 3,
@@ -77,7 +79,7 @@ impl Menu {
 
         let mut element_position = self.style.point.clone();
         element_position += self.style.padding;
-        
+
         //
         // Dynamic scrolling list way
 
@@ -95,10 +97,15 @@ impl Menu {
             if real_index >= self.elements.len() as i32 {
                 real_index -= self.elements.len() as i32;
             }
-
+            let active_index = real_index as usize;
             // Get the element from the array
-            if let Some(element) = self.elements.get(real_index as usize){
+            if let Some(element) = self.elements.get(active_index){
                 element.draw(display, element_position);
+
+                // If this is the cursor then draw the cursor on it
+                if active_index == self.cursor_index {
+                    Rectangle::new(element_position, element.style.size).draw_styled(&self.cursor_style, display);
+                }
 
                 // Update the element position based on iteration
                 match self.style.direction {
@@ -115,7 +122,7 @@ impl Menu {
         // Draw the visible elements
         // for element in self.elements.iter() {
         //     element.draw(display, element_position);
-        // 
+        //
         //     match self.style.direction {
         //         MenuDirection::Vertical => element_position.y += (element.style.size.height + self.style.element_space.height) as i32,
         //         MenuDirection::Horizontal => {element_position.x += (element.style.size.width + self.style.element_space.width) as i32}
