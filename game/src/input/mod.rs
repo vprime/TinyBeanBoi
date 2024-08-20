@@ -24,6 +24,7 @@ pub struct InputControl {
 
     // Timers
     interaction_start: u128, // Beginning of this interaction
+    interaction_time: u16, // Current interaction time
     press_start: u16,
     press_duration: u16, // duration of the last press
     release_frame: u64, // Frame the button was released
@@ -49,18 +50,18 @@ impl InputControl {
             self.clicks = 0;
         }
         // Calculate the current interaction time
-        let interaction_duration = (time - self.interaction_start) as u16;
+        self.interaction_time = (time - self.interaction_start) as u16;
 
         // When there's a state change
         if new_state != self.state {
             // If a button is pressed
             if new_state {
                 // record the new press time
-                self.press_start = interaction_duration;
+                self.press_start = self.interaction_time;
             } else {
                 // If a button was released, record the timers, and click counter.
-                self.press_duration = interaction_duration - self.press_start;
-                self.release_start = interaction_duration;
+                self.press_duration = self.interaction_time - self.press_start;
+                self.release_start = self.interaction_time;
                 self.release_frame = frame;
                 self.clicks += 1;
             }
@@ -69,7 +70,7 @@ impl InputControl {
         }
 
         // If the button has been released and the interaction got stale
-        if !new_state && (interaction_duration - self.release_start > MULTI_TAP_DURATION || self.clicks == 2 || interaction_duration > LONG_PRESS)  {
+        if !new_state && (self.interaction_time - self.release_start > MULTI_TAP_DURATION || self.clicks == 2 || self.interaction_time > LONG_PRESS)  {
             // Clear interaction watch, and mark the release frame
             self.interacting = false;
             self.interaction_release_frame = frame;
@@ -128,5 +129,10 @@ impl InputControl {
 
         self.interaction_release_frame == self.frame
         && self.press_duration > LONG_PRESS
+    }
+
+    /// Returns a counter of 0 to 1 to a long press
+    pub fn long_press_count(&self) -> f32 {
+        (self.interaction_time - self.press_start / LONG_PRESS) as f32
     }
 }
