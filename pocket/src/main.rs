@@ -16,6 +16,7 @@ use embedded_graphics::{
     prelude::*
 };
 use embedded_hal::spi::MODE_3;
+
 use mipidsi::{
     models::ST7789, 
     Builder,
@@ -31,8 +32,9 @@ fn main() -> anyhow::Result<()>  {
 
     // Bind the log crate to the ESP Logging facilities
     esp_idf_svc::log::EspLogger::initialize_default();
-
+    
     let peripherals = Peripherals::take().unwrap();
+
     let spi = peripherals.spi2;
 
     let rst = PinDriver::output(peripherals.pins.gpio23).unwrap();
@@ -102,3 +104,4 @@ fn main() -> anyhow::Result<()>  {
 
     }
 }
+

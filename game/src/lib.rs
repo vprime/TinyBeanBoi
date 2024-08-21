@@ -1,4 +1,5 @@
 mod input;
+mod ui;
 
 use std::collections::HashMap;
 use std::io::Read;
@@ -15,11 +16,13 @@ use embedded_graphics::text::Text;
 use tinybmp::{Bmp, Pixels};
 use crate::BlobcatTest::{base, blank, happy, left, right};
 use crate::input::Input;
+use crate::ui::GameUi;
 
 pub struct Game {
     time: Instant,
     frame: u64,
     pub input: Input,
+    ui: GameUi,
     blobcat: BlobcatTest,
 }
 
@@ -49,6 +52,7 @@ impl Default for Game {
             time: Instant::now(),
             frame: 0,
             input: Input::default(),
+            ui: GameUi::new(),
             blobcat: BlobcatTest::blank,
         }
     }
@@ -107,6 +111,9 @@ impl Game {
                 }
             }
         }
+        
+        // UI
+        self.ui.update(display, &self.input);
 
         // Print framerate
         let style = MonoTextStyle::new(&FONT_6X10, Rgb565::WHITE);
