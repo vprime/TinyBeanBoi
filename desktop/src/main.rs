@@ -81,14 +81,14 @@ impl DrawTarget for GameDisplay {
 }
 
 
-struct AppWrapper {
+struct AppWrapper<'a> {
     display: GameDisplay,
-    game: Game,
+    game: Game<'a>,
     input_state: InputState,
 }
 
 
-impl AppWrapper {
+impl<'a> AppWrapper<'a> {
     fn new() -> Self {
         Self {
             display: GameDisplay {
@@ -100,7 +100,7 @@ impl AppWrapper {
     }
 }
 
-impl eframe::App for AppWrapper {
+impl<'a> eframe::App for AppWrapper<'a> {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             self.display.ui(ui);
