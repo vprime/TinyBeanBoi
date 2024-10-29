@@ -2,22 +2,25 @@ mod input;
 mod ui;
 mod sprite;
 
-use std::collections::HashMap;
 use std::io::Read;
-use std::time::{Instant, Duration};
+use std::time::{Instant,};
 use embedded_graphics::{
     pixelcolor::Rgb565,
     prelude::*,
 };
-use embedded_graphics::image::{Image, ImageRaw, ImageRawBE, ImageRawLE};
 use embedded_graphics::mono_font::ascii::FONT_6X10;
 use embedded_graphics::mono_font::MonoTextStyle;
 use embedded_graphics::primitives::{PrimitiveStyleBuilder, Rectangle, StyledDrawable};
 use embedded_graphics::text::Text;
-use tinybmp::{Bmp, Pixels};
 use crate::input::Input;
 use crate::sprite::Assets;
 use crate::ui::GameUi;
+
+use embedded_sprites::{image::Image, include_image};
+use embedded_sprites::sprite::Sprite;
+
+// #[include_image]
+// const TEST_ATLAS: Image<Rgb565> = "../assets/sprites.png";
 
 pub struct Game<'a> {
     time: Instant,
@@ -66,6 +69,9 @@ impl<'a> Game<'a> {
         self.assets.sprites.draw_sprite(display, Point::new(32, 66), 120);
         self.assets.sprites.draw_sprite(display, Point::new(48, 66), 121);
 
+        let subrect = self.assets.sprites.get_rect_from_index(104);
+        //let _ = Sprite::new(Point::new(32, 82), &TEST_ATLAS.sub_image(&subrect)).draw(display);
+
         // UI
         self.ui.update(display, &self.input);
 
@@ -75,9 +81,5 @@ impl<'a> Game<'a> {
         let text = format!("R:{:?} Frame:{:?}", clock.elapsed(), self.frame);
         Rectangle::new(Point::new(0, 0), Size::new(DISPLAY_WIDTH, 20)).draw_styled(&recstyle, display);
         Text::new(&*text, Point::new(3, 10), style).draw(display);
-    }
-    
-    fn draw_graphic<T: DrawTarget<Color = Rgb565>>(&self, display: &mut T, pixels: &[u8]) {
-        let _ = Image::new(&Bmp::from_slice(pixels).unwrap(), Point::new(0, 0)).draw(display);
     }
 }
