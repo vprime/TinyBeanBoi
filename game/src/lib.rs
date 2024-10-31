@@ -24,6 +24,7 @@ pub struct Game {
     pub input: Input,
     ui: GameUi,
     blobcat: BlobcatTest,
+    pub sleep: bool,
 }
 
 #[derive(Copy, Clone, Default)]
@@ -54,6 +55,7 @@ impl Default for Game {
             input: Input::default(),
             ui: GameUi::new(),
             blobcat: BlobcatTest::blank,
+            sleep: false,
         }
     }
 }
@@ -61,6 +63,7 @@ impl Default for Game {
 impl Game {
     pub fn update<T: DrawTarget<Color = Rgb565>>(&mut self, display: &mut T, input_state: InputState)  {
         let clock = Instant::now();
+
         // Update the game timer
         self.frame += 1;
         let now = self.time.elapsed().as_millis();
@@ -87,8 +90,10 @@ impl Game {
             self.blobcat = blank;
             update_blobby = true;
         } else if self.input.left.long_press() || self.input.right.long_press() {
+            println!("Long press detected, going to sleep!");
             self.blobcat = happy;
             update_blobby = true;
+            self.sleep = true;
         }
 
         // Draw

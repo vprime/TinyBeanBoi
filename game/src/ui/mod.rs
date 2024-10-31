@@ -28,7 +28,6 @@ impl GameUi {
         let element_space = Size::new(3, 3);
         let cursor_style = PrimitiveStyleBuilder::new().stroke_color(Rgb565::YELLOW).stroke_width(3).build();
 
-
         let menu_one = Menu {
             style: MenuStyle {
                 point: submenu_point,
@@ -50,10 +49,23 @@ impl GameUi {
                         size: vert_element_size,
                         style: element_style,
                         text_offset,
-                        text: Some("First and only in menu one".into()),
+                        text: Some("First in menu one".into()),
                         ..MenuStyle::default()
                     },
                     trigger: Some(|| { println!("First item selected!"); }),
+                    on_close: None,
+                    takes_focus: false,
+                    submenu: None,
+                },
+                MenuElement {
+                    style: MenuStyle {
+                        size: vert_element_size,
+                        style: element_style,
+                        text_offset,
+                        text: Some("Enable Sleep Mode".into()),
+                        ..MenuStyle::default()
+                    },
+                    trigger: Some(|| { println!("lol nope") }),
                     on_close: None,
                     takes_focus: false,
                     submenu: None,
