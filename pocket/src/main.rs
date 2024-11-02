@@ -55,15 +55,16 @@ fn main() -> anyhow::Result<()>  {
     info!("Wakeup Reason: {:?}", wakeup_reason);
     if wakeup_reason == WakeupReason::ULP {
         // Pull information from ULP / RTC memory
-        let (time, wakeup) = {
-          let _cs = CriticalSection::new();
+        let (edges_count, debounce_count) = {
+            let _cs = CriticalSection::new();
             unsafe {
-                let time = ulp_driver.read_word(ulp_code_vars::time)?.value();
-                let wakeup = ulp_driver.read_word(ulp_code_vars::wakeup)?.value();
-                (time, wakeup)
+                let edges_count = ulp_driver.read_word(ulp_code_vars::edge_count)?.value();
+                let debounce_count = ulp_driver.read_word(ulp_code_vars::debounce_counter)?.value();
+                ulp_driver.write_word(ulp_code_vars::edge_count, 0)?;
+                (edges_count, debounce_count)
             }
         };
-        info!("woke up at Time: {:?} Wakeup time: {:?}", time, wakeup);
+        info!("Edges detected: {:?} Debounces: {:?}", edges_count, debounce_count);
     }
 
 
@@ -130,13 +131,13 @@ fn main() -> anyhow::Result<()>  {
         unsafe {
             ulp_driver.load(ULP_CODE)?;
             // Write what we need to save to RTC memory.
-            // ulp_driver.write_word(ulp_code_vars::edge_count, 0)?;
-            // ulp_driver.write_word(ulp_code_vars::edge_count_to_wake_up, 10)?;
-            // ulp_driver.write_word(ulp_code_vars::debounce_counter, 3)?;
-            // ulp_driver.write_word(ulp_code_vars::debounce_max_count, 3)?;
-            // ulp_driver.write_word(ulp_code_vars::next_edge, 0)?;
-            // ulp_driver.write_word(ulp_code_vars::io_number, left_button_pin_rtc as _)?;
-            ulp_driver.write_word(ulp_code_vars::wakeup, 300)?;
+            ulp_driver.write_word(ulp_code_vars::edge_count, 0)?;
+            ulp_driver.write_word(ulp_code_vars::edge_count_to_wake_up, 10)?;
+            ulp_driver.write_word(ulp_code_vars::debounce_counter, 3)?;
+            ulp_driver.write_word(ulp_code_vars::debounce_max_count, 3)?;
+            ulp_driver.write_word(ulp_code_vars::next_edge, 0)?;
+            ulp_driver.write_word(ulp_code_vars::wakeup_count, 0)?;
+            ulp_driver.write_word(ulp_code_vars::io_number, left_button_pin_rtc as _)?;
 
             // Start the program
             ulp_driver.start(ulp_code_vars::entry)?;
@@ -157,11 +158,27 @@ fn main() -> anyhow::Result<()>  {
         game.update(&mut display, current_input_status);
 
 
+        // Get data from ulp
+        // Pull information from ULP / RTC memory
+        let (edges_count, debounce_count, wakeup_count) = {
+            let _cs = CriticalSection::new();
+            unsafe {
+                let edges_count = ulp_driver.read_word(ulp_code_vars::edge_count)?.value();
+                let debounce_count = ulp_driver.read_word(ulp_code_vars::debounce_counter)?.value();
+                let wakeup_count = ulp_driver.read_word(ulp_code_vars::wakeup_count)?.value();
+                // if edges_count > 7 {
+                //     ulp_driver.write_word(ulp_code_vars::edge_count, 0)?;
+                // }
+                (edges_count, debounce_count, wakeup_count)
+            }
+        };
+        info!("Edges detected: {:?} Debounces: {:?}, wakeups {:?}", edges_count, debounce_count, wakeup_count);
+
         // If the game is "going to sleep" then trigger the sleep mode.
         if game.sleep {
             println!("Going to sleep!");
             unsafe {
-                ulp_driver.write_word(ulp_code_vars::wakeup, 300)?;
+                ulp_driver.write_word(ulp_code_vars::edge_count, 0)?;
                 esp!(esp_idf_sys::esp_sleep_enable_ulp_wakeup())?;
                 esp_idf_sys::esp_deep_sleep_start();
             }
