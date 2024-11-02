@@ -22,7 +22,7 @@ use embedded_graphics::{
     prelude::*
 };
 use embedded_hal::spi::MODE_3;
-use esp_idf_sys::{self as _, esp}; // If using the binstart feature of esp-idf-sys, always keep this module loaded
+use esp_idf_sys::{self as _, esp, time}; // If using the binstart feature of esp-idf-sys, always keep this module loaded
 use log::info;
 use mipidsi::{
     models::ST7789, 
@@ -55,16 +55,15 @@ fn main() -> anyhow::Result<()>  {
     info!("Wakeup Reason: {:?}", wakeup_reason);
     if wakeup_reason == WakeupReason::ULP {
         // Pull information from ULP / RTC memory
-        let (edges_count, debounce_count) = {
+        let (time, wakeup) = {
           let _cs = CriticalSection::new();
             unsafe {
-                let edges_count = ulp_driver.read_word(ulp_code_vars::edge_count)?.value();
-                let debounce_count = ulp_driver.read_word(ulp_code_vars::debounce_counter)?.value();
-                ulp_driver.write_word(ulp_code_vars::edge_count, 0)?;
-                (edges_count, debounce_count)
+                let time = ulp_driver.read_word(ulp_code_vars::time)?.value();
+                let wakeup = ulp_driver.read_word(ulp_code_vars::wakeup)?.value();
+                (time, wakeup)
             }
         };
-        info!("Edges detected: {:?} Debounces: {:?}", edges_count, debounce_count);
+        info!("woke up at Time: {:?} Wakeup time: {:?}", time, wakeup);
     }
 
 
@@ -131,18 +130,18 @@ fn main() -> anyhow::Result<()>  {
         unsafe {
             ulp_driver.load(ULP_CODE)?;
             // Write what we need to save to RTC memory.
-            ulp_driver.write_word(ulp_code_vars::edge_count, 0)?;
-            ulp_driver.write_word(ulp_code_vars::edge_count_to_wake_up, 10)?;
-            ulp_driver.write_word(ulp_code_vars::debounce_counter, 3)?;
-            ulp_driver.write_word(ulp_code_vars::debounce_max_count, 3)?;
-            ulp_driver.write_word(ulp_code_vars::next_edge, 0)?;
-            ulp_driver.write_word(ulp_code_vars::io_number, left_button_pin_rtc as _)?;
+            // ulp_driver.write_word(ulp_code_vars::edge_count, 0)?;
+            // ulp_driver.write_word(ulp_code_vars::edge_count_to_wake_up, 10)?;
+            // ulp_driver.write_word(ulp_code_vars::debounce_counter, 3)?;
+            // ulp_driver.write_word(ulp_code_vars::debounce_max_count, 3)?;
+            // ulp_driver.write_word(ulp_code_vars::next_edge, 0)?;
+            // ulp_driver.write_word(ulp_code_vars::io_number, left_button_pin_rtc as _)?;
+            ulp_driver.write_word(ulp_code_vars::wakeup, 300)?;
 
             // Start the program
             ulp_driver.start(ulp_code_vars::entry)?;
         }
     }
-
     loop {
         // Use thread::sleep to prevent Watchdog from triggering
         thread::sleep(Duration::from_millis(10));
@@ -157,26 +156,12 @@ fn main() -> anyhow::Result<()>  {
         // Update game
         game.update(&mut display, current_input_status);
 
-        // Get data from ulp
-        // Pull information from ULP / RTC memory
-        let (edges_count, debounce_count) = {
-            let _cs = CriticalSection::new();
-            unsafe {
-                let edges_count = ulp_driver.read_word(ulp_code_vars::edge_count)?.value();
-                let debounce_count = ulp_driver.read_word(ulp_code_vars::debounce_counter)?.value();
-                // if edges_count > 7 {
-                //     ulp_driver.write_word(ulp_code_vars::edge_count, 0)?;
-                // }
-                (edges_count, debounce_count)
-            }
-        };
-        info!("Edges detected: {:?} Debounces: {:?}", edges_count, debounce_count);
 
         // If the game is "going to sleep" then trigger the sleep mode.
         if game.sleep {
             println!("Going to sleep!");
             unsafe {
-                ulp_driver.write_word(ulp_code_vars::edge_count, 0)?;
+                ulp_driver.write_word(ulp_code_vars::wakeup, 300)?;
                 esp!(esp_idf_sys::esp_sleep_enable_ulp_wakeup())?;
                 esp_idf_sys::esp_deep_sleep_start();
             }
