@@ -1,9 +1,16 @@
 /*
  Goals:
-Wake up on double tap of left button
-Record number of taps on the right button
-
+Wake up from deep sleep on double tap of left button
 Main code will reboot on wakeup, it should look for a wakeup reason and load the number of taps from RTC_SLOW_MEM.
+
+Discovery:
+ The two front buttons on the device do not register in deep sleep as the power supplied is disabled,
+ even though RTC power should be enabled. I think we just need external circuitry for that to work.
+
+New Goal:
+ - keep program data in NVS, can it persist after pressing the power button?
+ - turn off display in light sleep
+ - wake up from light sleep with a button press sequence (double tap, in only fast succession)
 
 ULP Instruction Set
  https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-reference/system/ulp_instruction_set.html
